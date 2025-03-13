@@ -396,7 +396,7 @@ x-shared-env: &shared-api-worker-env
 services:
   # API service
   api:
-    image: langgenius/dify-api:0.15.1
+    image: langgenius/dify-api:latest
     restart: always
     environment:
       # Use the shared environment variables.
@@ -422,7 +422,7 @@ services:
   # worker service
   # The Celery worker for processing the queue.
   worker:
-    image: langgenius/dify-api:0.15.1
+    image: langgenius/dify-api:latest
     restart: always
     environment:
       # Use the shared environment variables.
@@ -440,13 +440,14 @@ services:
     volumes:
       # Mount the storage directory to the container, for storing user files.
       - ./volumes/app/storage:/app/api/storage
+      - ./volumes/app/logs:/app/logs/
     networks:
       - ssrf_proxy_network
       - default
 
   # Frontend web application.
   web:
-    image: langgenius/dify-web:0.15.1
+    image: langgenius/dify-web:latest
     restart: always
     environment:
       <<: *shared-timezone
@@ -476,6 +477,8 @@ services:
                -c 'effective_cache_size=${POSTGRES_EFFECTIVE_CACHE_SIZE:-4096MB}'
     volumes:
       - ./volumes/db/data:/var/lib/postgresql/data
+    ports:
+      - "${EXPOSE_POSTGRES_PORT:-5432}:5432"
     healthcheck:
       test: [ 'CMD', 'pg_isready' ]
       interval: 1s
@@ -621,7 +624,7 @@ services:
 
   # The Weaviate vector store.
   weaviate:
-    image: semitechnologies/weaviate:1.19.0
+    image: semitechnologies/weaviate:1.25.27
     profiles:
       - ''
       - weaviate
